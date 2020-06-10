@@ -1,5 +1,7 @@
 const express = require('express');
 const config = require('config');
+const courses = require('./routes/courses');
+const home = require('./routes/home');
 const startupDebugger = require('debug')('app:startup');
 const dbDebugger = require('debug')('app:db');
 
@@ -40,9 +42,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.get('/', (req, res) => {
-	// res.send([1, 2, 3, 4, 5]);
-	res.render('index', { title: 'express App', message: 'Hello' });
-});
+app.use('/', home);
+app.use('/api/courses', courses);
 
-app.listen(10202, () => console.log('server started on port 6000'));
+app.listen(10202, () => console.log('server started on port 10202'));

@@ -9,7 +9,7 @@ var message = '';
 console.log(global.message);
 //console.log(module);
 
-const Logger = require('./logger');
+const Logger = require('./middleware/logger');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
