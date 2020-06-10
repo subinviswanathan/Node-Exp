@@ -1,0 +1,6 @@
+{
+    "name": "exp-node: Production",
+    "mail": {
+        "host": "mail-server"
+    }
+}
