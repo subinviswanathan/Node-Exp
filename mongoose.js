@@ -8,12 +8,43 @@ mongoose
 	.then(() => console.log('Connected to Mongodb'))
 	.catch(err => console.error('Could not connect to MongoDB... ', err));
 
+// mongoose just validates the data. If the data is not present mongodb doesnt care whether the data is there or not.
+// Built in Validators
+// price: { type: Number, required: function() { return this.isPublished}}
+
 const coureSchema = new mongoose.Schema({
-	name: String,
+	name: {
+		type: String,
+		required: true,
+		minlength: 5,
+		maxlength: 255,
+		match: /.*/i,
+	},
 	author: String,
-	tags: [String],
+	tags: {
+		type: Array,
+		validate: {
+			validator: function (v) {
+				return v && v.length > 0;
+			},
+			message: 'course should have at least one tag',
+		},
+	},
 	date: { type: Date, default: Date.now },
 	isPublished: Boolean,
+	price: {
+		type: Number,
+		required: function () {
+			return this.isPublished;
+		},
+		min: 10,
+		max: 200,
+	},
+	category: {
+		type: String,
+		required: true,
+		enum: ['web', 'mobile', 'network'],
+	},
 });
 // List of schemas String, Number, Date, Buffer, Boolean, ObjectID, Array
 // Classes and objects Course, nodecourse
@@ -28,8 +59,13 @@ async function createCourse() {
 		isPublished: true,
 	});
 
-	const result = await course.save();
-	console.log(result);
+	try {
+		await course.validate();
+		const result = await course.save();
+		console.log(result);
+	} catch (err) {
+		console.log(err.message);
+	}
 }
 
 //createCourse();
@@ -74,3 +110,45 @@ async function getCourese() {
 }
 
 getCourese();
+
+async function updateCourse(id) {
+	// Approach: Query First findById Modify properties and then save
+	// Update First update directly and optionally get the documnet.
+
+	const course = await Course.findById(id);
+	if (!course) return;
+	course.isPublished = true;
+
+	course.set({
+		isPublished: true,
+		author: 'Subin',
+	});
+
+	const result = await course.save();
+	console.log(result);
+
+	// just update the data.
+	const result1 = await Course.updateOne(
+		{ _id: id },
+		{
+			$set: {
+				author: 'Subin',
+				isPublished: false,
+			},
+		}
+	);
+
+	// This gets the result Course.findByIdAndUpdate()
+	console.log(result1);
+}
+
+// updateCourse('5ee0bfc3f4741d5d407dddc4');
+
+async function removeCourse(id) {
+	const result = await Course.deleteOne({ _id: id });
+
+	// Course.findByIdAndRemove(id); return the result
+	console.log();
+}
+
+removeCourse();
