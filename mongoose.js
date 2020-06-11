@@ -30,6 +30,19 @@ const coureSchema = new mongoose.Schema({
 			message: 'course should have at least one tag',
 		},
 	},
+	tags1: {
+		type: Array,
+		validate: {
+			isAsync: true,
+			validator: function (v, callback) {
+				setTimeout(() => {
+					const res = v && v.length > 0;
+					callback(res);
+				}, 1000);
+			},
+			message: 'course should have at least one tag',
+		},
+	},
 	date: { type: Date, default: Date.now },
 	isPublished: Boolean,
 	price: {
@@ -39,11 +52,16 @@ const coureSchema = new mongoose.Schema({
 		},
 		min: 10,
 		max: 200,
+		get: v => Math.round(v),
+		set: v => Math.round(v),
 	},
 	category: {
 		type: String,
 		required: true,
 		enum: ['web', 'mobile', 'network'],
+		lowercase: true,
+		//uppercase: true,
+		trim: true,
 	},
 });
 // List of schemas String, Number, Date, Buffer, Boolean, ObjectID, Array
@@ -65,6 +83,9 @@ async function createCourse() {
 		console.log(result);
 	} catch (err) {
 		console.log(err.message);
+		console.console.log(err.errors);
+		// error object for all validation errors.
+		for (field in err.errors) console.log(err.errors[field].message);
 	}
 }
 
