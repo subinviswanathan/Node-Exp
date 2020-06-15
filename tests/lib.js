@@ -11,3 +11,17 @@ module.exports.registerUser = username => {
 
 	return { id: new Date().getTime(), username };
 };
+
+const db = require('./db');
+const mail = require('./mail');
+module.exports.applyDiscount = order => {
+	const customer = db.getCustomerSync(order.customerId);
+
+	if (customer.points > 10) order.totalProce *= 0.9;
+};
+
+module.exports.notifyCustomer = order => {
+	const customer = db.getCustomerSync(order.customerId);
+
+	mail.send(customer.email, 'Order Placed');
+};

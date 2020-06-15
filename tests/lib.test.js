@@ -1,4 +1,6 @@
 const lib = require('./lib');
+const db = require('./db');
+const mail = require('./mail');
 
 describe('absolute', () => {
 	// test('should return a +ve number if input is +ve', () => {
@@ -64,5 +66,26 @@ describe('registerUser', () => {
 		const result = lib.registerUser('Subin');
 		expect(result).toMatchObject({ username: 'Subin' });
 		expect(result.id).toBeGreaterThan(0); // Since this is random number
+	});
+});
+
+describe('applyDiscount', () => {
+	it('should apply 10% discount if cusomer has more than 10 points', () => {
+		db.getCustomerSync = id => ({ id: 1, points: 20 });
+		const order = { id, totalPrice: 10 };
+		lib.applyDiscount(order);
+		expect(order.totalPrice).toBe(9);
+	});
+});
+
+describe('notifyCustomer', () => {
+	it('should send an email to the customer', () => {
+		db.getCustomerSync = id => ({ id: 1, points: 20, email: 'abc' });
+
+		let mailSent = false;
+		mail.send = (email, message) => (mailSent = true);
+		lib.notifyCustomer({ customerId: 1 });
+
+		expect(mailSent).toBe(true);
 	});
 });
