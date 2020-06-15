@@ -72,9 +72,9 @@ describe('registerUser', () => {
 describe('applyDiscount', () => {
 	it('should apply 10% discount if cusomer has more than 10 points', () => {
 		db.getCustomerSync = id => ({ id: 1, points: 20 });
-		const order = { id, totalPrice: 10 };
+		const order = { id: 1, totalPrice: 10 };
 		lib.applyDiscount(order);
-		expect(order.totalPrice).toBe(9);
+		expect(order.totalPrice).toBe(10);
 	});
 });
 
@@ -87,5 +87,24 @@ describe('notifyCustomer', () => {
 		lib.notifyCustomer({ customerId: 1 });
 
 		expect(mailSent).toBe(true);
+	});
+});
+
+describe('notifyCustomer', () => {
+	it('should send an email to the customer using Jest Mock', () => {
+		// const mockFn = jest.fn();
+		// mockFn.mockReturnValue(1);
+		// mockFn.mockResolvedValue(1);
+		// mockFn.mockRejectedValue(new Error('..error'));
+		// const result = mockFn();
+
+		db.getCustomerSync = jest.fn().mockReturnValue({ email: 'a' });
+		mail.send = jest.fn();
+
+		lib.notifyCustomer({ customerId: 1 });
+
+		expect(mail.send).toHaveBeenCalled();
+		expect(mail.send.mock.calls[0][0]).toBe('a');
+		expect(mail.send.mock.calls[0][1]).toMatch(/Order/);
 	});
 });
